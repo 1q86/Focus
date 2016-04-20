@@ -1,0 +1,103 @@
+package top601studio.focus;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.Window;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+/**
+ * Created by s1112001 on 2015/4/3.
+ */
+public class MainActivity extends Activity {
+
+    private SwipeRefreshLayout mSwipeLayout= null;
+    private WebView browser= null;
+    private ProgressBar bar=null;
+    private long exitTime = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);// 隐藏标题栏
+        setContentView(R.layout.activity_main);
+
+        UpdateManager manager = new UpdateManager(MainActivity.this);
+        // 检查软件更新
+        manager.checkUpdate();
+
+        bar = (ProgressBar)findViewById(R.id.myProgressBar);
+
+        browser = (WebView)findViewById(R.id.toWeb);
+        browser.getSettings().setJavaScriptEnabled(true);//enable js
+
+        //progressbar
+        browser.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress == 100) {
+                    bar.setVisibility(View.INVISIBLE);
+                    mSwipeLayout.setRefreshing(false);
+                } else {
+                    if (View.INVISIBLE == bar.getVisibility()) {
+                        bar.setVisibility(View.VISIBLE);
+                    }
+                    bar.setProgress(newProgress);
+                    if (!mSwipeLayout.isRefreshing())
+                        mSwipeLayout.setRefreshing(true);
+                }
+                super.onProgressChanged(view, newProgress);
+            }
+        });
+        browser.loadUrl("http://1q86.github.io/");
+
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //重新刷新页面
+                browser.loadUrl(browser.getUrl());
+            }
+        });
+        mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light, android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        // 如果页面中链接，如果希望点击链接继续在当前browser中响应，
+        // 而不是新开Android的系统browser中响应该链接，必须覆盖webview的WebViewClient对象
+        browser.setWebViewClient(new WebViewClient(){
+            public boolean shouldOverrideUrlLoading(WebView view, String url)
+            {
+                //  重写此方法表明点击网页里面的链接还是在当前的webview里跳转，不跳到浏览器那边
+                view.loadUrl(url);
+                return true;
+            }
+        });
+    }
+
+    // 重写onKeyDown
+    public  boolean  onKeyDown ( int  keyCode, KeyEvent event) {
+        if  ((keyCode == KeyEvent.KEYCODE_BACK ) &&  browser .canGoBack()) {
+            browser .goBack();
+            return  true ;
+        }else{
+            if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){
+                if((System.currentTimeMillis()-exitTime) > 2000){
+                    Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    exitTime = System.currentTimeMillis();
+                } else {
+                    finish();
+                    System.exit(0);
+                }
+                return true;
+            }
+        }
+        return  super .onKeyDown(keyCode, event);
+    }
+}
