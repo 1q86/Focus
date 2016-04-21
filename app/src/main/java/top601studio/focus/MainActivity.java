@@ -2,10 +2,12 @@ package top601studio.focus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -125,8 +127,15 @@ public class MainActivity extends Activity {
                         .setTitle("URL")
                         .setIcon(android.R.drawable.ic_dialog_info)
                         .setView(new EditText(this))
-                        .setPositiveButton("确定", null)
-                        .setNegativeButton("取消", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // TODO Auto-generated method stub
+                                Toast.makeText(getApplicationContext(), "set success", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .setCancelable(false)
                         .show();
                 return true;
             case R.id.share:
