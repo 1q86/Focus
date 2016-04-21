@@ -1,14 +1,21 @@
 package top601studio.focus;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -55,7 +62,7 @@ public class MainActivity extends Activity {
                 super.onProgressChanged(view, newProgress);
             }
         });
-        browser.loadUrl("http://1q86.github.io/");
+        browser.loadUrl(getResources().getString(R.string.url));
 
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -100,4 +107,43 @@ public class MainActivity extends Activity {
         }
         return  super .onKeyDown(keyCode, event);
     }
+
+    //菜单处理部分
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {//建立菜单
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        super.onCreateOptionsMenu(menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) { //菜单响应函数
+        switch (item.getItemId()) {
+            case R.id.config:
+                new AlertDialog.Builder(this)
+                        .setTitle("URL")
+                        .setIcon(android.R.drawable.ic_dialog_info)
+                        .setView(new EditText(this))
+                        .setPositiveButton("确定", null)
+                        .setNegativeButton("取消", null)
+                        .show();
+                return true;
+            case R.id.share:
+                ImageView img = new ImageView(this);
+                img.setImageResource(R.drawable.share);
+                new AlertDialog.Builder(this)
+                        .setTitle("Share App")
+                        .setView(img)
+                        .setPositiveButton("OK", null)
+                        .setCancelable(false)
+                        .show();
+                return true;
+            case R.id.about:
+                Toast.makeText(getApplicationContext(), "TOP 601 STUDIO\nhttps://top601.github.io\ntop601studio@gmail.com", Toast.LENGTH_LONG).show();
+                return true;
+        }
+        return false;
+    }
+
 }
