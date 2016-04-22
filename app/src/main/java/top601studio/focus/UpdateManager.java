@@ -124,7 +124,7 @@ public class UpdateManager
         ParseXmlService service = new ParseXmlService();
         try
         {
-            String path = "http://1q86.github.io/app_version.xml";
+            String path = mContext.getResources().getString(R.string.version);
             URL url = new URL(path);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setReadTimeout(5*1000);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
@@ -64,7 +65,10 @@ public class MainActivity extends Activity {
                 super.onProgressChanged(view, newProgress);
             }
         });
-        browser.loadUrl(getResources().getString(R.string.url));
+
+        SharedPreferences  sharedPreferences = getSharedPreferences("configuration", 0);
+        String url = sharedPreferences.getString("url",getResources().getString(R.string.url));
+        browser.loadUrl(url);
 
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -123,15 +127,24 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) { //菜单响应函数
         switch (item.getItemId()) {
             case R.id.config:
+                SharedPreferences  sharedPreferences = getSharedPreferences("configuration", 0);
+                String url = sharedPreferences.getString("url",getResources().getString(R.string.url));
+                final EditText ed_url = new EditText(this);
+                ed_url.setText(url);
                 new AlertDialog.Builder(this)
                         .setTitle("URL")
                         .setIcon(android.R.drawable.ic_dialog_info)
-                        .setView(new EditText(this))
+                        .setView(ed_url)
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // TODO Auto-generated method stub
-                                Toast.makeText(getApplicationContext(), "set success", Toast.LENGTH_LONG).show();
+                                SharedPreferences sharedPreferences = getSharedPreferences("configuration", 0);
+                                SharedPreferences.Editor  editor  =  sharedPreferences.edit();
+                                editor.putString("url",ed_url.getText().toString());
+                                editor.commit();
+                                browser.loadUrl(ed_url.getText().toString());
+                                Toast.makeText(getApplicationContext(), "Set Success!", Toast.LENGTH_LONG).show();
                             }
                         })
                         .setNegativeButton("Cancel", null)
@@ -149,7 +162,7 @@ public class MainActivity extends Activity {
                         .show();
                 return true;
             case R.id.about:
-                Toast.makeText(getApplicationContext(), "TOP 601 STUDIO\nhttps://top601.github.io\ntop601studio@gmail.com", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "top601studio@gmail.com", Toast.LENGTH_LONG).show();
                 return true;
         }
         return false;
